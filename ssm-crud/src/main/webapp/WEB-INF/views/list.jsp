@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,12 +47,14 @@
 						<th>Deptname</th>
 						<th>Operation</th>
 					</tr>
-					<tr>
-						<th>1</th>
-						<th>q</th>
-						<th>M</th>
-						<th>aaa@zzx.com</th>
-						<th>deptname</th>
+					
+					<c:forEach items="${pageInfo.list }" var="emp">
+						<tr>
+						<th>${emp.empId }</th>
+						<th>${emp.empName }</th>
+						<th>${emp.gender=="M"?"Male":"Female" }</th>
+						<th>${emp.email }</th>
+						<th>${emp.department.deptName }</th>
 						<th>
 							<button class="btn btn-primary btn-sm">
 							<span class="glyphicon glyphicon-pencil" aria-hidden="true">
@@ -61,6 +66,10 @@
 							</button>
 						</th>
 					</tr>
+					
+					</c:forEach>
+					
+					
 				</table>
 			</div>
 		</div>
@@ -70,29 +79,40 @@
 		<div class="row">
 			<!-- 分页文字信息 -->
 			<div class="col-md-6">
-				record: xxxx
+				${pageInfo.pageNum} page, Total ${pageInfo.pages} pages, Total ${pageInfo.total} records
 			</div>
 			<!-- 分页条信息 -->
 			<div class="col-md-6">
 				<nav aria-label="Page navigation">
 					  <ul class="pagination">
-					  	<li><a href="#">First page</a></li>
-					    <li>
-					      <a href="#" aria-label="Previous">
-					        <span aria-hidden="true">&laquo;</span>
-					      </a>
-					    </li>
-					    <li><a href="#">1</a></li>
-					    <li><a href="#">2</a></li>
-					    <li><a href="#">3</a></li>
-					    <li><a href="#">4</a></li>
-					    <li><a href="#">5</a></li>
-					    <li>
-					      <a href="#" aria-label="Next">
-					        <span aria-hidden="true">&raquo;</span>
-					      </a>
-					    </li>
-					    <li><a href="#">Last page</a></li>
+					  
+					  <li><a href="${APP_PATH }/emps?pn=1">First page</a></li>
+					  	<c:if test="${pageInfo.hasPreviousPage }">
+						  	<li>
+						      <a href="${APP_PATH }/emps?pn=${pageInfo.pageNum-1}" aria-label="Previous">
+						        <span aria-hidden="true">&laquo;</span>
+						      </a>
+						    </li>
+					  	</c:if>
+					  
+					    <c:forEach items="${pageInfo.navigatepageNums }" var="page_Num">
+					    	<c:if test="${page_Num==pageInfo.pageNum }">
+					    		<li class="active"><a href="#">${page_Num }</a></li>
+					    	</c:if>
+					    	<c:if test="${page_Num!=pageInfo.pageNum }">
+					    		<li ><a href="${APP_PATH }/emps?pn=${page_Num }">${page_Num }</a></li>
+					    	</c:if>
+					    </c:forEach>
+					    
+					    <c:if test="${pageInfo.hasNextPage }">
+						    <li>
+						      <a href="${APP_PATH }/emps?pn=${pageInfo.pageNum+1 }" aria-label="Next">
+						        <span aria-hidden="true">&raquo;</span>
+						      </a>
+						    </li>
+					    </c:if>
+					    
+					    <li><a href="${APP_PATH }/emps?pn=${pageInfo.pages }">Last page</a></li>
 					  </ul>
 					</nav>
 			</div>
