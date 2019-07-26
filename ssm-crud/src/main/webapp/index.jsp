@@ -56,7 +56,7 @@
 				  <div class="form-group">
 				    <label class="col-sm-2 control-label">deptName</label>
 				    <div class="col-sm-4">
-				      	<select class="form-control">
+				      	<select class="form-control" name="dId" id="dept_add_select">
 						  	
 						</select>
 				    </div>
@@ -67,7 +67,7 @@
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary">Save changes</button>
+	        <button type="button" class="btn btn-primary" id="emp_save_btn">Save changes</button>
 	      </div>
 	    </div>
 	  </div>
@@ -229,12 +229,36 @@
 			var navEle =  $("<nav></nav>").append(ul);
 			navEle.appendTo("#page_nav_area")
 		}
+		
+		//click add btn
 		$("#emp_add_modal_btn").click(function(){
+			//send ajax request, get dept info
+			getDepts();
+			
+			//show modal
 			$("#empAddModal").modal({
 				backdrop: "static"
 			})
 			
 		});
+		
+		//get dept info
+		function getDepts(){
+			$.ajax({
+				url:"http://localhost:8080/${APP_PATH}/depts",
+				type:"GET",
+				success:function(result){
+				
+					
+					$.each(result.extend.depts,function(){
+						var optionEle = $("<option></option>").append(this.deptName).attr("value",this.deptId);
+						optionEle.appendTo("#dept_add_select");
+					});
+				}
+			});
+		}
+		
+		
 		
 	</script>
 </body>
