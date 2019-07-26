@@ -124,6 +124,8 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+	
+		var totalRecord;
 		$(function(){
 			toPage(1);
 		});
@@ -174,6 +176,7 @@
 			$("#page_info_area").append(result.extend.pageInfo.pageNum +" page, total "
 					+ result.extend.pageInfo.pages+" pages, total "
 					+result.extend.pageInfo.total+" records");
+			totalRecord = result.extend.pageInfo.total;
 		}
 		
 		function build_page_nav(result){
@@ -258,6 +261,19 @@
 			});
 		}
 		
+		//save emp into database
+		$("#emp_save_btn").click(function(){
+			$.ajax({
+				url:"http://localhost:8080/${APP_PATH}/emp",
+				type:"POST",
+				data:$("#empAddModal form").serialize(),
+				success:function(result){
+					$('#empAddModal').modal('hide')
+					//show the last page info
+					toPage(totalRecord);
+				}
+			});
+		});
 		
 		
 	</script>
