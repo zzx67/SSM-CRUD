@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zzx.crud.bean.Employee;
+import com.zzx.crud.bean.EmployeeExample;
+import com.zzx.crud.bean.EmployeeExample.Criteria;
 import com.zzx.crud.dao.EmployeeMapper;
 
 @Service
@@ -23,6 +25,15 @@ public class EmployeeService {
 		employeeMapper.insertSelective(employee);
 		// TODO Auto-generated method stub
 		
+	}
+
+	public boolean checkUser(String empName) {
+		// TODO Auto-generated method stub
+		EmployeeExample example = new EmployeeExample();
+		EmployeeExample.Criteria criteria = example.createCriteria();
+		criteria.andEmpNameEqualTo(empName);
+		long count = employeeMapper.countByExample(example);
+		return count==0;
 	}
 
 }

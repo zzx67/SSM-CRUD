@@ -1,10 +1,17 @@
 package com.zzx.crud.controller;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +38,7 @@ public class EmployeeController {
 	@ResponseBody
 	public Msg getEmpsWithJson(@RequestParam(value="pn",defaultValue = "1")Integer pn) {
 		PageHelper.startPage(pn, 5);
+		PageHelper.orderBy("emp_id asc");
 		List<Employee> emps = employeeService.getAll();
 		//使用pageinfo包装查询后的结果
 		//封装了详细的分页信息，包括有查询出来的数据,传入连续显示的页数
@@ -38,11 +46,40 @@ public class EmployeeController {
 		return Msg.success().add("pageInfo", page);
 	}
 	
+	@ResponseBody
+	@RequestMapping("/checkuser")
+	public Msg checkuser(@RequestParam("empName")String empName) {
+		//first check if name valid
+		String regex = "(^[a-zA-Z0-9_-]{3,16}$)|(^[\\u2E80-\\u9FFF]{2,5}$)";
+		if(!empName.matches(regex)){
+			return Msg.fail().add("va_msg", "Username should be 6-16 letters or numbers");
+		}
+		
+		boolean canUse = employeeService.checkUser(empName);
+		if(canUse) {
+			return Msg.success().add("va_msg", "Name is available");
+		}else {
+			return Msg.fail().add("va_msg", "Name is not available. Duplicated name.");
+		}
+		
+	}
+	
 	@RequestMapping(value="/emp",method = RequestMethod.POST)
 	@ResponseBody
-	public Msg saveEmp(Employee employee) {
-		employeeService.saveEmp(employee);
-		return Msg.success();
+	public Msg saveEmp(@Valid Employee employee,BindingResult result) {
+		if(result.hasErrors()) {
+			Map<String,Object> map = new HashMap<String, Object>();
+			List<FieldError> errors = result.getFieldErrors();
+			for(FieldError fieldError:errors) {
+				System.out.println("错误字段名 "+fieldError.getField());
+				System.out.println("错误信息 "+fieldError.getDefaultMessage());
+				map.put(fieldError.getField(), fieldError.getDefaultMessage());
+			}
+			return Msg.fail().add("errorFields", map);
+		}else {
+			employeeService.saveEmp(employee);
+			return Msg.success();
+		}
 	}
 	
 	

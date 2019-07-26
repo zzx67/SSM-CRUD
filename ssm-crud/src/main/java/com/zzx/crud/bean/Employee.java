@@ -1,12 +1,21 @@
 package com.zzx.crud.bean;
 
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
+
 public class Employee {
     private Integer empId;
-
+    
+    @Pattern(regexp = "(^[a-zA-Z0-9_-]{3,16}$)|(^[\\u2E80-\\u9FFF]{2,5}$)"
+    		,message = "Username must be 6-16 letters or numbers")
     private String empName;
 
     private String gender;
-
+    
+    @Pattern(regexp = "^([A-Za-z0-9_\\-\\.]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$"
+    		,message = "Email address is invalid")
     private String email;
 
     private Integer dId;

@@ -34,12 +34,14 @@
 				    <label class="col-sm-2 control-label">empName</label>
 				    <div class="col-sm-10">
 				      <input type="text" name="empName" class="form-control" id="empName_add_input" placeholder="empName">
+				      <span class="help-block"></span>
 				    </div>
 				  </div>
 				  <div class="form-group">
 				    <label class="col-sm-2 control-label">email</label>
 				    <div class="col-sm-10">
 				      <input type="text" name="email" class="form-control" id="email_add_input" placeholder="email@zzx.com">
+				      <span class="help-block"></span>
 				    </div>
 				  </div>
 				  <div class="form-group">
@@ -233,8 +235,18 @@
 			navEle.appendTo("#page_nav_area")
 		}
 		
+		function reset_form(ele){
+			//remove form info(reset form)
+			$(ele)[0].reset();
+			$(ele).find("*").removeClass("has-error has-success");
+			$(ele).find(".help-block").text("");
+		}
+		
 		//click add btn
 		$("#emp_add_modal_btn").click(function(){
+			//remove form info(reset form)
+			reset_form("#empAddModal form");
+			
 			//send ajax request, get dept info
 			getDepts();
 			
@@ -261,19 +273,96 @@
 			});
 		}
 		
-		//save emp into database
+		
+		//verify the input data
+		function validata_add_form(){
+			//get the data
+			var empName = $("#empName_add_input").val();
+			var regName = /(^[a-zA-Z0-9_-]{3,16}$)|(^[\u2E80-\u9FFF]{2,5}$)/;
+			if(!regName.test(empName)){
+				show_validate_msg("#empName_add_input","error","Username should be 6-16 letters or numbers");
+				return false;
+			}else{
+				show_validate_msg("#empName_add_input","success","");
+			};
+			var email = $("#email_add_input").val();
+			var regEmail = /^([A-Za-z0-9_\-\.]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+			if(!regEmail.test(email)){
+				show_validate_msg("#email_add_input","error","Email address is invalid");
+				return false;
+			}else{
+				show_validate_msg("#email_add_input","success","");
+			};
+			return true;
+		}
+		
+		function show_validate_msg(ele,status,msg){
+			//remove current status
+			$(ele).parent().removeClass("has-success has-error")
+			$(ele).next("span").text("");
+			
+			if("success"==status){
+				$(ele).parent().addClass("has-success");
+				$(ele).next("span").text(msg);
+			}else if("error"==status){
+				$(ele).parent().addClass("has-error");
+				$(ele).next("span").text(msg);
+			};
+		}
+		
+		$("#empName_add_input").change(function(){
+			//send ajax request to verify the emp name
+			var empName = this.value;
+			$.ajax({
+				url:"http://localhost:8080/${APP_PATH}/checkuser",
+				data:"empName="+empName,
+				type:"POST",
+				success:function(result){
+					if(result.code==100){
+						show_validate_msg("#empName_add_input","success",result.extend.va_msg);
+						$("#emp_save_btn").attr("ajax-va","success");
+					}else{
+						show_validate_msg("#empName_add_input","error",result.extend.va_msg);
+						$("#emp_save_btn").attr("ajax-va","error");
+					}
+				}
+			});
+			
+		});
+		
+		//click but and save emp into database
 		$("#emp_save_btn").click(function(){
+			//first need to verify the input data
+			if(!validata_add_form()){
+				return false
+			}
+			//decide if the verification of name success(if can submit or not)
+			if($(this).attr("ajax-va")=="error"){
+				return false;
+			}
+			
 			$.ajax({
 				url:"http://localhost:8080/${APP_PATH}/emp",
 				type:"POST",
 				data:$("#empAddModal form").serialize(),
 				success:function(result){
-					$('#empAddModal').modal('hide')
-					//show the last page info
-					toPage(totalRecord);
+					if(result.code==100){
+						$('#empAddModal').modal('hide')
+						//show the last page info
+						toPage(totalRecord);
+					}else{
+						if(undefined!=result.extend.errorFields.email){
+							show_validate_msg("#email_add_input","error",result.extend.errorFields.email);
+						}
+						if(undefined!=result.extend.errorFields.empName){
+							show_validate_msg("#empName_add_input","error",result.extend.errorFields.empName)
+						}
+					}
 				}
 			});
 		});
+		
+		
 		
 		
 	</script>
