@@ -500,6 +500,8 @@
 		
 		$("#emp_delete_all_btn").click(function(){
 			//$(".check_item:checked")
+			$("#check_all").prop("checked",false);
+			
 			var empNames = "";
 			var empIds = "";
 			$.each($(".check_item:checked"),function(){
