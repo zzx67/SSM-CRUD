@@ -47,4 +47,19 @@ public class EmployeeService {
 		employeeMapper.updateByPrimaryKeySelective(employee);
 	}
 
+	public void deleteEmp(Integer empId) {
+		// TODO Auto-generated method stub
+		employeeMapper.deleteByPrimaryKey(empId);
+		
+	}
+
+	public void deleteBatch(List<Integer> ids) {
+		// TODO Auto-generated method stub
+		EmployeeExample example = new EmployeeExample();
+		EmployeeExample.Criteria criteria = example.createCriteria();
+		criteria.andEmpIdIn(ids);
+		employeeMapper.deleteByExample(example);
+		
+	}
+
 }

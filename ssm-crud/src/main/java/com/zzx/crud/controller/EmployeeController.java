@@ -1,8 +1,11 @@
 package com.zzx.crud.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -35,7 +38,28 @@ public class EmployeeController {
 	@Autowired
 	EmployeeService employeeService;
 	
-	//save emp
+	
+	@ResponseBody
+	@RequestMapping(value="/emp/{empId}",method = RequestMethod.DELETE)
+	public Msg deleteEmp(@PathVariable("empId")String empIds) {
+		if(empIds.contains("-")) {
+			List<Integer> delIds = new ArrayList<Integer>(); 
+			String[] ids = empIds.split("-");
+			for(String string:ids) {
+				delIds.add(Integer.parseInt(string));
+			}
+			employeeService.deleteBatch(delIds);
+			return Msg.success();
+			
+		}else {
+			Integer empId = Integer.parseInt(empIds);
+			employeeService.deleteEmp(empId);
+			return Msg.success();
+		}
+		
+	}
+	
+	//update emp
 	@RequestMapping(value="/emp/{empId}",method = RequestMethod.PUT)
 	@ResponseBody
 	public Msg updateEmp(Employee employee) {
